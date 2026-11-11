@@ -21,6 +21,7 @@
   ],
   "scripts": {
     "build": "bun run build:esm && bun run build:cjs",
+    "prepack": "bun run build",
     "build:esm": "tsgo -p tsconfig.build.json",
     "build:cjs": "tsgo -p tsconfig.build.cjs.json && node scripts/write-cjs-package-json.mjs",
     "typecheck": "tsgo --noEmit && tsgo --noEmit -p tsconfig.examples.json",
