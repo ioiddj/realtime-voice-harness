@@ -81,7 +81,8 @@ export class FakeTranscriber implements ISpeechTranscriber {
    * Resolves the clip tag to text. `say:<voice>:<text>` tags resolve to
    * `<text>` regardless of voice; bare `say:<text>` tags (pre-voice format)
    * resolve as before. `reply:` prefixes resolve symmetrically; anything
-   * else falls back to the known-replies map.
+   * else falls back to the known-replies map, keyed by full tag, e.g.
+   * `new Map([['say:mlg:Hello', 'Hello']])`.
    * @param audio - Clip produced by {@link FakeSynthesizer} or the app double.
    * @returns The resolved transcript.
    */

@@ -117,6 +117,21 @@ const synthesizer = new FakeSynthesizer('mlg');
 List them with `VOICE_NAMES`, narrow with `isFakeVoiceName`, and render
 directly with `renderVoiceSamples` — all exported from the package root.
 
+## Custom transcripts
+
+`FakeTranscriber` resolves clips by tag: `say:<voice>:<text>` (or legacy
+`say:<text>`) resolves to `<text>`, `reply:<text>` symmetrically. For
+anything else, pass explicit resolutions keyed by **full tag**:
+
+```ts
+const transcriber = new FakeTranscriber(
+  new Map([['say:mlg:Hello', 'Hello']])
+);
+```
+
+Untagged or unknown clips transcribe as `[unrecognized]` with confidence 0,
+so tests fail loudly instead of passing on silence.
+
 ## Next steps
 
 - Run the loop under your framework: [frameworks.md](frameworks.md)
