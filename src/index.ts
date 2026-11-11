@@ -53,3 +53,9 @@ export {
   FakeTranscriber,
   ScriptedAppTransport,
 } from './fakes/FakeDoubles.js';
+export {
+  isFakeVoiceName,
+  renderVoiceSamples,
+  VOICE_NAMES,
+  type FakeVoiceName,
+} from './fakes/VoicePresets.js';

@@ -9,6 +9,11 @@
  * interfaces without changing harness code.
  */
 import { DEFAULT_SAMPLE_RATE, type AudioClip } from '../audio/AudioClip.js';
+import {
+  isFakeVoiceName,
+  renderVoiceSamples,
+  type FakeVoiceName,
+} from './VoicePresets.js';
 import type { ISpeechSynthesizer } from '../speech/ISpeechSynthesizer.js';
 import type {
   ISpeechTranscriber,
@@ -21,27 +26,38 @@ import type {
 } from '../transport/IRealtimeTransport.js';
 
 /**
- * Synthesizer double: emits one PCM sample per character and tags the clip
- * with the source text so the transcriber double can resolve it.
+ * Synthesizer double: renders one voice's PCM signature per utterance and
+ * tags the clip with voice and text so the transcriber double can resolve it.
  */
 export class FakeSynthesizer implements ISpeechSynthesizer {
+  private readonly voice: FakeVoiceName;
+
   /**
-   * Synthesizes deterministic tagged audio.
+   * Creates the synthesizer double.
+   * @param voice - Voice signature to render. Defaults to `'default'`.
+   */
+  public constructor(voice: FakeVoiceName = 'default') {
+    this.voice = voice;
+  }
+
+  /** Returns the voice this synthesizer renders. */
+  public getVoice(): FakeVoiceName {
+    return this.voice;
+  }
+
+  /**
+   * Synthesizes deterministic tagged audio in the selected voice.
    * @param text - Utterance to "speak". Must be non-empty.
-   * @returns Tagged PCM clip.
+   * @returns Tagged PCM clip (`say:<voice>:<text>`).
    */
   public synthesize(text: string): Promise<AudioClip> {
     if (text.length === 0) {
       throw new Error('FakeSynthesizer requires non-empty text.');
     }
-    const samples = new Float32Array(text.length);
-    for (let i = 0; i < text.length; i++) {
-      samples[i] = (text.charCodeAt(i) % 256) / 255 - 0.5;
-    }
     return Promise.resolve({
-      samples,
+      samples: renderVoiceSamples(text, this.voice),
       sampleRate: DEFAULT_SAMPLE_RATE,
-      tag: `say:${text}`,
+      tag: `say:${this.voice}:${text}`,
     });
   }
 }
@@ -62,8 +78,10 @@ export class FakeTranscriber implements ISpeechTranscriber {
   }
 
   /**
-   * Resolves the clip tag to text (`say:` and `reply:` prefixes resolve
-   * symmetrically; anything else falls back to the known-replies map).
+   * Resolves the clip tag to text. `say:<voice>:<text>` tags resolve to
+   * `<text>` regardless of voice; bare `say:<text>` tags (pre-voice format)
+   * resolve as before. `reply:` prefixes resolve symmetrically; anything
+   * else falls back to the known-replies map.
    * @param audio - Clip produced by {@link FakeSynthesizer} or the app double.
    * @returns The resolved transcript.
    */
@@ -74,10 +92,11 @@ export class FakeTranscriber implements ISpeechTranscriber {
         return Promise.resolve({ text: known, confidence: 1 });
       }
       if (audio.tag.startsWith('say:') || audio.tag.startsWith('reply:')) {
-        return Promise.resolve({
-          text: audio.tag.slice(audio.tag.indexOf(':') + 1),
-          confidence: 1,
-        });
+        const rest = audio.tag.slice(audio.tag.indexOf(':') + 1);
+        const separator = rest.indexOf(':');
+        const voice = separator < 0 ? '' : rest.slice(0, separator);
+        const text = separator < 0 || !isFakeVoiceName(voice) ? rest : rest.slice(separator + 1);
+        return Promise.resolve({ text, confidence: 1 });
       }
     }
     return Promise.resolve({ text: '[unrecognized]', confidence: 0 });

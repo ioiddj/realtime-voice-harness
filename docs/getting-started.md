@@ -76,6 +76,20 @@ replies throws immediately instead — fail fast while scripting.
 handle threaded through turns and readable via `getSession()`. Use it to carry
 per-conversation state (e.g. an agent thread/memory id) in custom transports.
 
+## Choosing a voice
+
+`FakeSynthesizer` accepts a voice name — `default`, `mlg` (the infamous
+bass-boosted MLG voiceover voice, airhorn blast included), `robot`, or
+`whisper`. Every voice renders distinct samples but transcribes to the same
+text, so multi-voice scripts assert on words, not waveforms:
+
+```ts
+const synthesizer = new FakeSynthesizer('mlg');
+```
+
+List them with `VOICE_NAMES`, narrow with `isFakeVoiceName`, and render
+directly with `renderVoiceSamples` — all exported from the package root.
+
 ## Next steps
 
 - Run the loop under your framework: [frameworks.md](frameworks.md)
