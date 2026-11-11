@@ -72,16 +72,7 @@ export class LangChainTransport implements IRealtimeTransport {
     }
     const input = (await this.transcriber.transcribe(audio)).text;
     const replyText = await this.invoke(input);
-    const reply = await this.synthesizer.synthesize(replyText);
-    const tagged: AudioClip = {
-      ...reply,
-      tag: `reply:${replyText}`,
-    };
-    queueMicrotask(() => {
-      for (const listener of this.listeners) {
-        listener(tagged);
-      }
-    });
+    await this.emitReply(replyText);
   }
 
   /**
@@ -94,6 +85,15 @@ export class LangChainTransport implements IRealtimeTransport {
       throw new Error('LangChainTransport is not connected.');
     }
     const replyText = await this.invoke(text);
+    await this.emitReply(replyText);
+  }
+
+  /**
+   * Synthesizes one reply and emits it to listeners asynchronously.
+   * @param replyText - Reply text to vocalize.
+   * @returns Nothing; delivery happens on the microtask queue.
+   */
+  private async emitReply(replyText: string): Promise<void> {
     const reply = await this.synthesizer.synthesize(replyText);
     const tagged: AudioClip = {
       ...reply,

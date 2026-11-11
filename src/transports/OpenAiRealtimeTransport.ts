@@ -42,9 +42,12 @@ export const DEFAULT_REALTIME_VOICE: string = 'alloy';
  * @returns The value as an Error.
  */
 function asError(error: unknown): Error {
-  return error instanceof Error
-    ? error
-    : new Error('OpenAiRealtimeTransport operation failed.');
+  if (error instanceof Error) {
+    return error;
+  }
+  return new Error(
+    `OpenAiRealtimeTransport operation failed: ${String(error)}`
+  );
 }
 
 /**

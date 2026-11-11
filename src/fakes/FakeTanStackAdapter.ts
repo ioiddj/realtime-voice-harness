@@ -28,7 +28,7 @@ export const FAKE_TANSTACK_PROVIDER: string = 'fake-tanstack';
  * @param model - Model id embedded in the token config.
  * @returns A well-formed `RealtimeToken`.
  */
-export function createFakeToken(model = 'fake-cascade'): RealtimeToken {
+export function createFakeToken(model: string = 'fake-cascade'): RealtimeToken {
   return {
     provider: FAKE_TANSTACK_PROVIDER,
     token: `fake-${model}`,
@@ -127,9 +127,9 @@ export class FakeTanStackConnection implements RealtimeConnection {
     this.onEvent = (event, handler) => emitter.on(event, handler);
   }
 
-  /** Returns the current session config (test introspection). */
+  /** Returns a copy of the current session config (test introspection). */
   public getSession(): RealtimeSessionConfig {
-    return this.session;
+    return { ...this.session };
   }
 
   public on<TEvent extends RealtimeEvent>(
@@ -181,6 +181,9 @@ export class FakeTanStackConnection implements RealtimeConnection {
    */
   public sendText(text: string): void {
     this.throwIfDisconnected();
+    if (this.replies.length === 0) {
+      throw new Error('FakeTanStackConnection has no scripted replies.');
+    }
     const index = Math.min(this.replyIndex, this.replies.length - 1);
     this.replyIndex += 1;
     const reply = this.replies[index] as string;

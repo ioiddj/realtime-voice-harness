@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import {
   createFakeToken,
   FakeTanStackAdapter,
+  FakeTanStackConnection,
 } from '../src/fakes/FakeTanStackAdapter.js';
 import {
   FakeSynthesizer,
@@ -88,5 +89,22 @@ describe('TanStackTransport', () => {
     } finally {
       await harness.disconnect();
     }
+  });
+
+  it('fails loudly when no replies are scripted', async () => {
+    const connection = new FakeTanStackConnection([]);
+    expect(() => {
+      connection.sendText('Hello.');
+    }).toThrow('no scripted replies');
+    await connection.disconnect();
+  });
+
+  it('returns a defensive copy from getSession', () => {
+    const connection = new FakeTanStackConnection(['Hi.']);
+    connection.updateSession({ voice: 'alloy' });
+    const snapshot = connection.getSession();
+    expect(snapshot.voice).toBe('alloy');
+    snapshot.voice = 'mutated';
+    expect(connection.getSession().voice).toBe('alloy');
   });
 });
