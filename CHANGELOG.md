@@ -5,6 +5,10 @@ changes pile at the top until the next version bump.
 
 ## Unreleased
 
+- `AguiSseTransport` accepts `extraBody` (e.g. `forwardedProps`).
+- Mastra/VoltAgent adapters (`mastraInvoke`, `voltAgentInvoke`) with mock-model
+  example suites; live NIM suites under `examples/live-nim/` (skip without keys).
+
 - Turn-level latency SLOs: `timeToFirstAudioMs` on every turn,
   `LatencyBudget` + `assertLatency`.
 - First-party local speech: Supertonic TTS + Whisper STT via

@@ -27,12 +27,16 @@
     "typecheck": "tsgo --noEmit && tsgo --noEmit -p tsconfig.examples.json",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\" \"examples/**/*.ts\" --max-warnings 0",
     "test": "vitest run",
-    "test:examples": "bun run build && bun run test:bun && bun run test:node && bun run test:jest && bun run test:playwright && bun run test:langchain && bun run test:tanstack && bun run test:local-speech && bun run test:openai-realtime && bun run test:midscene",
+    "test:examples": "bun run build && bun run test:bun && bun run test:node && bun run test:jest && bun run test:playwright && bun run test:langchain && bun run test:mastra && bun run test:voltagent && bun run test:tanstack && bun run test:local-speech && bun run test:live-nim && bun run test:openai-realtime && bun run test:midscene",
     "test:bun": "bun test examples/bun",
     "test:node": "node --test \"examples/node/**/*.test.mjs\"",
     "test:jest": "jest --config examples/jest/jest.config.cjs",
     "test:playwright": "playwright test --config examples/playwright/playwright.config.ts",
     "test:langchain": "vitest run --config vitest.examples.config.ts examples/langchain",
+    "test:live-nim": "vitest run --config vitest.examples.config.ts examples/live-nim",
+    "test:live-nim": "vitest run --config vitest.examples.config.ts examples/live-nim",
+    "test:mastra": "vitest run --config vitest.examples.config.ts examples/mastra",
+    "test:voltagent": "vitest run --config vitest.examples.config.ts examples/voltagent",
     "test:local-speech": "vitest run --config vitest.examples.config.ts examples/local-speech",
     "test:tanstack": "vitest run --config vitest.examples.config.ts examples/tanstack",
     "test:openai-realtime": "vitest run --config vitest.examples.config.ts examples/openai-realtime",
@@ -57,9 +61,13 @@
     "vitest": "^5.1.0"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^4.0.115",
     "@huggingface/transformers": "^4.3.2",
     "@modelcontextprotocol/sdk": "^1.32.2",
     "@tanstack/ai": "^1.4.0",
+    "@voltagent/core": "^2.11.1",
+    "@voltagent/vercel-ai": "^1.0.0",
+    "mastra": "^1.38.0",
     "zod": "^4.6.7"
   }
 }

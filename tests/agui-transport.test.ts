@@ -115,6 +115,9 @@ describe('AguiSseTransport', () => {
         transcriber,
         synthesizer,
         threadId: 't-1',
+        extraBody: {
+          forwardedProps: { conversationId: 't-1', generationSettings: {} },
+        },
       });
       const harness = new VoiceConversationHarness({
         synthesizer,
@@ -136,11 +139,13 @@ describe('AguiSseTransport', () => {
       const parsed = JSON.parse(receivedBody) as {
         messages?: Array<{ role?: string; content?: string }>;
         threadId?: string;
+        forwardedProps?: { conversationId?: string };
       };
       expect(parsed.threadId).toBe('t-1');
       const first = parsed.messages?.[0];
       expect(first?.role).toBe('user');
       expect(first?.content).toBe('Hello, agent.');
+      expect(parsed.forwardedProps?.conversationId).toBe('t-1');
     } finally {
       await closeServer(server);
     }

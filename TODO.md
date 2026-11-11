@@ -15,7 +15,9 @@
 - **Push `origin/main`.** Remote set, local commits, never pushed. Say the word.
 - **npm publish.** Needs `private: false` + explicit go-ahead (see
   `docs/roadmap.md` → Publishing).
-- **Mastra / VoltAgent.** Roadmap notes only; unapproved.
+- **Mastra / VoltAgent.** Shipped (`mastraInvoke` / `voltAgentInvoke` +
+  mock-model example suites + live NIM suites). Remaining: streaming replies,
+  thread memory, voice providers (see roadmap).
 
 ## Unverified (could not be checked here)
 

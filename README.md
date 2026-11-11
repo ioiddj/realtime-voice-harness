@@ -34,11 +34,12 @@ try {
 
 ## Status
 
-Early development. The core loop, three transports, and six framework suites
-are implemented and executed in CI-equivalent runs here (see
+Early development. The core loop, seven transports/adapters, and ten
+framework/agent suites are implemented and executed here (see
 [Testing](#testing)). The OpenAI Realtime transport is a reference
 implementation (needs a live key; never executed here). Mastra/VoltAgent
-targets and the MCP toolkit server are roadmap items, not code.
+adapters are verified against real agents with mocked models, plus live NIM
+suites under `examples/live-nim/` (skip without keys).
 
 ## Install
 
@@ -85,7 +86,11 @@ bun run test:examples   # build + all framework/agent suites
 | Playwright example | @playwright/test | `bun run test:playwright` | 2/2 pass, no browser launched |
 | Local speech (transformers.js) | vitest | `bun run test:local-speech` | 3/3 pass, first run downloads models |
 | LangChain transport | vitest | `bun run test:langchain` | 4/4 pass |
+| Mastra agent | vitest | `bun run test:mastra` | 2/2 pass (real Agent, mock model) |
+| VoltAgent agent | vitest | `bun run test:voltagent` | 2/2 pass (real Agent, mock model) |
 | TanStack transport (+ example) | vitest | `bun run test` + `bun run test:tanstack` | 5 + 2 pass |
+| MCP toolkit | vitest | `bun run test` | 3/3 pass |
+| Live provider checks | vitest | `bun run test:live-nim` | 3 pass live w/ keys, else 3 skip |
 | OpenAI Realtime validation | vitest | `bun run test:openai-realtime` | 4/4 pass (negative tests only) |
 | midscene | @playwright/test + @midscene/web | `bun run test:midscene` | 2 pass, 1 skip (needs `MIDSCENE_MODEL_API_KEY`) |
 
@@ -98,6 +103,7 @@ Details and per-framework notes: [docs/frameworks.md](docs/frameworks.md).
 | `ScriptedAppTransport` (fakes) | In-memory scripted app | Unit tests |
 | `AguiSseTransport` | Any AG-UI SSE endpoint (e.g. Innerview `/api/chat`) | Mock-SSE tests + live check vs Innerview mock server |
 | `LangChainTransport` | Any `(text) => Promise<string>` fn (`RunnableLambda`, executor) | Tests with echo/uppercase runnables |
+| `mastraInvoke` / `voltAgentInvoke` | Real Mastra/VoltAgent agents via `LangChainTransport` | Tests with real agents + mock models; live NIM suites |
 | `TanStackTransport` | Any `@tanstack/ai` `RealtimeAdapter` (provider adapters, cascade adapters, `FakeTanStackAdapter`) | Tests over the fake; live provider needs keys |
 | `OpenAiRealtimeTransport` | OpenAI Realtime WebSocket | Reference only — constructor/connect validation tests; never executed live |
 

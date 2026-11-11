@@ -30,6 +30,11 @@ export interface AguiSseTransportOptions {
   readonly headers?: Record<string, string>;
   /** Chat path appended to `baseUrl`. Defaults to `/api/chat`. */
   readonly chatPath?: string;
+  /**
+   * Extra top-level fields merged into the chat POST body (e.g.
+   * `forwardedProps` carrying generation settings for the server).
+   */
+  readonly extraBody?: Record<string, unknown>;
 }
 
 /** Default chat path when none is supplied. */
@@ -90,6 +95,7 @@ export class AguiSseTransport implements IRealtimeTransport {
   private readonly threadId: string | undefined;
   private readonly headers: Record<string, string>;
   private readonly chatPath: string;
+  private readonly extraBody: Record<string, unknown>;
   private readonly listeners = new Set<AudioListener>();
   private connected = false;
 
@@ -107,6 +113,7 @@ export class AguiSseTransport implements IRealtimeTransport {
     this.threadId = options.threadId;
     this.headers = { ...(options.headers ?? {}) };
     this.chatPath = options.chatPath ?? DEFAULT_CHAT_PATH;
+    this.extraBody = { ...(options.extraBody ?? {}) };
   }
 
   /** Marks the transport ready (no persistent connection; chat is per-turn POST). */
@@ -190,6 +197,7 @@ export class AguiSseTransport implements IRealtimeTransport {
         body: JSON.stringify({
           messages: [{ role: 'user', content: text }],
           threadId: this.threadId,
+          ...this.extraBody,
         }),
       });
     } catch (error) {

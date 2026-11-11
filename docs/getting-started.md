@@ -166,6 +166,22 @@ const transcriber = new FakeTranscriber(
 Untagged or unknown clips transcribe as `[unrecognized]` with confidence 0,
 so tests fail loudly instead of passing on silence.
 
+## Live provider checks (opt-in, costs real calls)
+
+`examples/live-nim/` proves the harness against live backends. Everything
+skips unless explicitly enabled — nothing runs by accident:
+
+```sh
+# Mastra + VoltAgent against NVIDIA NIM (needs a NIM key):
+NIM_LIVE_RUN=1 NVIDIA_NIM_API_KEY=<key> bun run test:live-nim
+# AG-UI endpoint (e.g. a local Innerview server with its own key configured):
+AGUI_BASE_URL=http://localhost:3099 bun run test:live-nim
+```
+
+`agui-nim` additionally forwards `generationSettings` through the new
+`extraBody` transport option. For the AG-UI leg, start the server first
+(`PORT=3099 bun run --bun server/src/index.ts` from the Innerview repo).
+
 ## Next steps
 
 - Run the loop under your framework: [frameworks.md](frameworks.md)

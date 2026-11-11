@@ -6,10 +6,9 @@ confirm against the real API before building.
 
 ## Mastra
 
-The `LangChainTransport` text-bridge pattern applies directly: wrap
-`(text) => agent.generate(...).text` as `invoke` (**verify** method/result
-shape) and reuse the transcribe → generate → synthesize → `onAudio` pipeline.
-Further integration points, in order of value:
+Text bridge shipped as `mastraInvoke` (`(text) => agent.generate(text)`).
+Verified: real `Agent` + mock AI SDK model, harness loop green; live Nemotron
+run green. Remaining deeper integrations, in order of value:
 
 1. **Streaming replies** — if `agent.stream(...)` exists (**verify**), emit
    partial replies as multiple `AudioClip`s through `onAudio`.
@@ -23,9 +22,12 @@ Further integration points, in order of value:
 
 ## VoltAgent
 
-Same text-bridge entry: wrap the agent's text-generation call (believed to be
-`agent.generateText(...)`, AI-SDK style — **verify**) as `invoke` in a
-`VoltAgentTransport`. Then:
+Text bridge shipped as `voltAgentInvoke`
+(`(text) => agent.generateText(text)`). Verified: real `Agent` (with
+`maxRetries: 0` for determinism) + mock AI SDK model, harness loop green;
+live Nemotron run green via a test-only v2-spec model shim
+(`examples/live-nim/nim-test-model.ts`), since VoltAgent's bundled AI SDK
+accepts only v2/v3 models while the current `@ai-sdk/openai` emits v4. Then:
 
 1. **Voice options** — if a `voice` agent option or `@voltagent/voice-*`
    packages exist (**verify**), wire provider audio deltas to `onAudio`.

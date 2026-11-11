@@ -91,6 +91,12 @@ export {
   type FakeVoiceName,
 } from './fakes/VoicePresets.js';
 export {
+  MastraLikeAgent,
+  mastraInvoke,
+  VoltAgentLikeAgent,
+  voltAgentInvoke,
+} from './agents/AgentAdapters.js';
+export {
   createVoiceMcpToolkit,
   type VoiceMcpOptions,
   type VoiceMcpToolkit,
