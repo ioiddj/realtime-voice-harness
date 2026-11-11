@@ -21,6 +21,10 @@ export default tseslint.config(
         // subdir needs its own one-level entry (other workstreams: add
         // yours here, e.g. 'examples/bun/*.ts').
         projectService: {
+          // Nine example files share the default project (the service only
+          // auto-discovers tsconfig.json); the cap below is the sanctioned
+          // escape hatch for this known-small set.
+          maximumDefaultProjectFileMatchCount_THIS_WILL_SLOW_DOWN_LINTING: 20,
           allowDefaultProject: [
             'examples/agui/*.ts',
             'examples/bun/*.ts',
@@ -29,6 +33,7 @@ export default tseslint.config(
             'examples/midscene/*.ts',
             'examples/node/*.mts',
             'examples/openai-realtime/*.ts',
+            'examples/tanstack/*.ts',
             'examples/playwright/*.ts',
           ],
         },

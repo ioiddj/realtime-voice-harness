@@ -58,6 +58,32 @@ const transport = new LangChainTransport({
 Accepting a plain function (not a LangChain type) avoids version coupling; see
 `examples/langchain/voice-harness.test.ts`.
 
+### `TanStackTransport` — TanStack AI realtime connections
+
+Drives any `@tanstack/ai` `RealtimeAdapter` — a provider adapter (OpenAI,
+compatible S2S backends), a custom cascade adapter such as Innerview's
+`nvidiaRealtime`, or `FakeTanStackAdapter` in tests:
+
+```ts
+import { realtimeToken } from '@tanstack/ai';
+
+const transport = new TanStackTransport({
+  adapter: myAdapter, // RealtimeAdapter
+  getToken: () => realtimeToken({ adapter: myTokenAdapter }),
+  transcriber,
+  synthesizer,
+});
+```
+
+Outbound harness audio is transcribed and forwarded via
+`connection.sendText`; final assistant transcripts are synthesized to reply
+audio. Connection-level errors surface on the next `sendAudio`/`sendText` as
+plain `Error`s. `@tanstack/ai` is a runtime dependency but imported
+**type-only** by the transport and fake, so CommonJS consumers (`jest`,
+Playwright transforms) never `require()` its ESM-only entry — verified by
+`bun run test:jest` and `bun run test:playwright` against the built `dist/cjs`.
+See `examples/tanstack/voice-harness.test.ts`.
+
 ### `OpenAiRealtimeTransport` — reference only
 
 Shape-complete adapter over the OpenAI Realtime WebSocket API using only the

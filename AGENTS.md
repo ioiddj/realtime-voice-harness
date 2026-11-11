@@ -14,7 +14,7 @@ Text-in/text-out test harness for realtime voice apps with agentic harnesses. A 
 - Build: `bun run build` (emits `dist/esm` + `dist/cjs` with declarations)
 - Unit tests: `bun run test` (vitest, `tests/` only)
 - All framework/agent suites: `bun run test:examples` (builds first, then bun, node, jest, Playwright, LangChain, OpenAI-Realtime, midscene)
-- Per-suite: `bun run test:bun|test:node|test:jest|test:playwright|test:langchain|test:openai-realtime|test:midscene`
+- Per-suite: `bun run test:bun|test:node|test:jest|test:playwright|test:langchain|test:tanstack|test:openai-realtime|test:midscene`
 - Lint: `bun run lint` (eslint, zero warnings)
 - Typecheck: `bun run typecheck` (`tsgo --noEmit` on `src/`+`tests/` and on `tsconfig.examples.json`)
 

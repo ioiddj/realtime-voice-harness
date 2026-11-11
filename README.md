@@ -84,6 +84,7 @@ bun run test:examples   # build + all framework/agent suites
 | jest example | jest (@swc/jest) | `bun run test:jest` | 2/2 pass |
 | Playwright example | @playwright/test | `bun run test:playwright` | 2/2 pass, no browser launched |
 | LangChain transport | vitest | `bun run test:langchain` | 4/4 pass |
+| TanStack transport | vitest | `bun run test` + `bun run test:tanstack` | 3 + 2 pass |
 | OpenAI Realtime validation | vitest | `bun run test:openai-realtime` | 4/4 pass (negative tests only) |
 | midscene | @playwright/test + @midscene/web | `bun run test:midscene` | 2 pass, 1 skip (needs `MIDSCENE_MODEL_API_KEY`) |
 
@@ -96,6 +97,7 @@ Details and per-framework notes: [docs/frameworks.md](docs/frameworks.md).
 | `ScriptedAppTransport` (fakes) | In-memory scripted app | Unit tests |
 | `AguiSseTransport` | Any AG-UI SSE endpoint (e.g. Innerview `/api/chat`) | Mock-SSE tests + live check vs Innerview mock server |
 | `LangChainTransport` | Any `(text) => Promise<string>` fn (`RunnableLambda`, executor) | Tests with echo/uppercase runnables |
+| `TanStackTransport` | Any `@tanstack/ai` `RealtimeAdapter` (provider adapters, cascade adapters, `FakeTanStackAdapter`) | Tests over the fake; live provider needs keys |
 | `OpenAiRealtimeTransport` | OpenAI Realtime WebSocket | Reference only — constructor/connect validation tests; never executed live |
 
 Writing your own: [docs/transports.md](docs/transports.md).

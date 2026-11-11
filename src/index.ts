@@ -39,6 +39,16 @@ export {
   type OpenAiRealtimeTransportOptions,
 } from './transports/OpenAiRealtimeTransport.js';
 export {
+  TanStackTransport,
+  type TanStackTransportOptions,
+} from './transports/TanStackTransport.js';
+export {
+  createFakeToken,
+  FAKE_TANSTACK_PROVIDER,
+  FakeTanStackAdapter,
+  FakeTanStackConnection,
+} from './fakes/FakeTanStackAdapter.js';
+export {
   FakeSynthesizer,
   FakeTranscriber,
   ScriptedAppTransport,

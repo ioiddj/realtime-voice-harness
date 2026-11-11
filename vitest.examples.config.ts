@@ -5,6 +5,7 @@ export default defineConfig({
     include: [
       'examples/langchain/**/*.test.ts',
       'examples/openai-realtime/**/*.test.ts',
+      'examples/tanstack/**/*.test.ts',
     ],
   },
 });
