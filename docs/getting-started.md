@@ -86,8 +86,15 @@ best-effort: a throwing monitor never fails the turn it observes.
 ## Timeouts
 
 `harness.speak(text, { timeoutMs })` waits up to `timeoutMs` (default 30_000)
-for reply audio before resolving with an empty transcript. Keep suite timeouts
-above it: a silent app costs you the full wait. `ScriptedAppTransport` with no
+for reply audio before resolving with an empty transcript. Pass
+`onTimeout: 'throw'` to reject with a plain Error instead — prefer it in new
+suites, since it fails at the cause rather than in a downstream assertion:
+
+```ts
+await harness.speak('Hello?', { timeoutMs: 5_000, onTimeout: 'throw' });
+```
+
+Keep suite timeouts above it: a silent app costs you the full wait. `ScriptedAppTransport` with no
 replies throws immediately instead — fail fast while scripting.
 
 ## Sessions

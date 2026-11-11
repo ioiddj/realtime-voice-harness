@@ -31,6 +31,18 @@ export interface ScriptedTurn {
   readonly expectReply?: (reply: string) => void | Promise<void>;
 }
 
+/** Per-turn overrides for {@link VoiceConversationHarness.speak}. */
+export interface SpeakOptions {
+  /** Max wait for reply audio before giving up. Defaults to 30_000. */
+  readonly timeoutMs?: number;
+  /**
+   * Silence policy on timeout. `'empty'` (default) resolves with an empty
+   * transcript; `'throw'` rejects with a plain Error naming the wait.
+   * Prefer `'throw'` in new suites — it fails at the cause, not downstream.
+   */
+  readonly onTimeout?: 'throw' | 'empty';
+}
+
 /** Result of one executed turn. */
 export interface TurnResult {
   /** Scripted input text. */
@@ -115,14 +127,14 @@ export class VoiceConversationHarness<TSession = unknown> {
    * Speaks one scripted line and returns the app's transcribed reply.
    * @param say - Text to synthesize and send.
    * @param options - Per-turn overrides.
-   * @param options.timeoutMs - Max wait for reply audio before failing.
    * @returns The turn result with transcript and timing.
    */
   public async speak(
     say: string,
-    options: { timeoutMs?: number } = {}
+    options: SpeakOptions = {}
   ): Promise<TurnResult> {
     const timeoutMs = options.timeoutMs ?? 30_000;
+    const onTimeout = options.onTimeout ?? 'empty';
     const turnIndex = this.turnCounter;
     this.turnCounter += 1;
     const startedAt = Date.now();
@@ -132,6 +144,11 @@ export class VoiceConversationHarness<TSession = unknown> {
     const baseline = this.inbound.length;
     await this.transport.sendAudio(outbound);
     const replyAudio = await this.waitForReply(baseline, timeoutMs);
+    if (replyAudio === null && onTimeout === 'throw') {
+      throw new Error(
+        `VoiceConversationHarness heard no reply within ${String(timeoutMs)}ms.`
+      );
+    }
     this.notify({ kind: 'reply-audio', turnIndex, clip: replyAudio });
     const replyText = replyAudio
       ? (await this.transcriber.transcribe(replyAudio)).text

@@ -106,6 +106,34 @@ describe('VoiceConversationHarness', () => {
     }
   });
 
+  it('throws on silence with onTimeout throw and stays empty by default', async () => {
+    const silent: IRealtimeTransport = {
+      connect: () => Promise.resolve(),
+      disconnect: () => Promise.resolve(),
+      sendAudio: () => Promise.resolve(),
+      onAudio: () => {
+        const unsubscribe = (): void => undefined;
+        return unsubscribe;
+      },
+    };
+    const harness = new VoiceConversationHarness({
+      synthesizer: new FakeSynthesizer(),
+      transcriber: new FakeTranscriber(),
+      transport: silent,
+    });
+    await harness.connect();
+    try {
+      const quiet = await harness.speak('Hello?', { timeoutMs: 100 });
+      expect(quiet.heard).toBe('');
+      expect(quiet.reply).toBeNull();
+      await expect(
+        harness.speak('Hello?', { timeoutMs: 100, onTimeout: 'throw' })
+      ).rejects.toThrow('no reply within 100ms');
+    } finally {
+      await harness.disconnect();
+    }
+  });
+
   it('transcribes chunked replies that arrive as multiple segments', async () => {
     const synthesizer = new FakeSynthesizer();
     let emit: ((audio: AudioClip) => void) | null = null;

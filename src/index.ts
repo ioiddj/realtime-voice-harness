@@ -26,6 +26,7 @@ export {
   VoiceConversationHarness,
   type HarnessDrivers,
   type ScriptedTurn,
+  type SpeakOptions,
   type TurnResult,
 } from './harness/VoiceConversationHarness.js';
 export {
