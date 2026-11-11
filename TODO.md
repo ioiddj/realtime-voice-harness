@@ -12,15 +12,16 @@
 
 ## Awaiting operator decisions (not work)
 
-- **Push `origin/main`.** Remote set, local commits, never pushed. Say the word.
-- **npm publish.** Needs `private: false` + explicit go-ahead (see
-  `docs/roadmap.md` → Publishing).
+- **Push `origin/main`.** Done — public at
+  `github.com/ioiddj/realtime-voice-harness`.
+- **npm publish.** Blocked on `npm login` (registry: not-logged-in;
+  `npm publish --dry-run` passes: 130 files, dist included). Run `npm login`,
+  then `npm publish` from the repo root.
 - **Mastra / VoltAgent.** Shipped (`mastraInvoke` / `voltAgentInvoke` +
-  mock-model example suites + live NIM suites). Remaining: streaming replies,
-  thread memory, voice providers (see roadmap).
+  mock-model example suites + live NIM suites incl. full harness loops).
+  Remaining: streaming replies, thread memory, voice providers (see roadmap).
 
 ## Unverified (could not be checked here)
 
 - Midscene live `aiAssert` (needs model key + browsers; skips by design).
 - `OpenAiRealtimeTransport` over the wire (reference only; needs live key).
-- Mastra/VoltAgent API shapes (roadmap `**verify**` flags stand).
