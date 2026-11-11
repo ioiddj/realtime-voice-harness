@@ -1,0 +1,5 @@
+# Scopes bare `bun test` to the bun:test examples so framework runners never
+# collide: without this, an instinctive bare `bun test` sweeps Playwright
+# specs into bun's runner and fails. Per-suite commands are unaffected.
+[test]
+root = "examples/bun"

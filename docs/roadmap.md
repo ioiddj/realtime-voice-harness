@@ -43,6 +43,8 @@ rather than reimplementing the loop.
 
 ## Publishing
 
-`package.json` is currently `"private": true, "version": "0.0.0"` with no
-license file. Before first publish or public announcement beyond the repo:
-choose a license, flip `private`, and set a real version.
+Licensed MIT (`LICENSE`, holder `ioidj`), version `0.1.0`. `package.json`
+stays `"private": true` until an explicit registry release is wanted — it
+blocks `npm publish` while the public repo is source-only. Before that
+release: flip `private` and add `"prepack": "bun run build"` so a published
+tarball always contains a fresh `dist/`.

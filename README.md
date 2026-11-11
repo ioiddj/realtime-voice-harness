@@ -78,13 +78,13 @@ bun run test:examples   # build + all framework/agent suites
 
 | Suite | Runner | Command | Status |
 |---|---|---|---|
-| Unit + AG-UI transport | vitest | `bun run test` | 7/7 pass |
+| Unit + transports (tests/) | vitest | `bun run test` | 26/26 pass |
 | bun example | bun:test | `bun run test:bun` | 2/2 pass |
 | node example | node:test | `bun run test:node` | 2/2 pass |
 | jest example | jest (@swc/jest) | `bun run test:jest` | 2/2 pass |
 | Playwright example | @playwright/test | `bun run test:playwright` | 2/2 pass, no browser launched |
 | LangChain transport | vitest | `bun run test:langchain` | 4/4 pass |
-| TanStack transport | vitest | `bun run test` + `bun run test:tanstack` | 3 + 2 pass |
+| TanStack transport (+ example) | vitest | `bun run test` + `bun run test:tanstack` | 5 + 2 pass |
 | OpenAI Realtime validation | vitest | `bun run test:openai-realtime` | 4/4 pass (negative tests only) |
 | midscene | @playwright/test + @midscene/web | `bun run test:midscene` | 2 pass, 1 skip (needs `MIDSCENE_MODEL_API_KEY`) |
 
