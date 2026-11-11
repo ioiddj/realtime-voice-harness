@@ -18,6 +18,7 @@ import type {
   IRealtimeTransport,
   Unsubscribe,
 } from '../transport/IRealtimeTransport.js';
+import type { IAudioMonitor, MonitorEvent } from './AudioMonitor.js';
 
 /** One scripted user turn. */
 export interface ScriptedTurn {
@@ -38,6 +39,10 @@ export interface TurnResult {
   readonly heard: string;
   /** Milliseconds from send to completed transcription. */
   readonly roundTripMs: number;
+  /** Synthesized outbound audio (hear it, save it, assert on it). */
+  readonly outbound: AudioClip;
+  /** Captured reply audio, or null when the app stayed silent. */
+  readonly reply: AudioClip | null;
 }
 
 /** Dependencies injected into the harness (all interfaces, no concretes). */
@@ -45,6 +50,11 @@ export interface HarnessDrivers {
   readonly synthesizer: ISpeechSynthesizer;
   readonly transcriber: ISpeechTranscriber;
   readonly transport: IRealtimeTransport;
+  /**
+   * Optional observability sink receiving per-stage monitor events.
+   * The harness runs identically with or without one.
+   */
+  readonly monitor?: IAudioMonitor;
 }
 
 /**
@@ -57,9 +67,11 @@ export class VoiceConversationHarness<TSession = unknown> {
   private readonly synthesizer: ISpeechSynthesizer;
   private readonly transcriber: ISpeechTranscriber;
   private readonly transport: IRealtimeTransport;
+  private readonly monitor: IAudioMonitor | undefined;
   private readonly session: TSession | undefined;
   private inbound: AudioClip[] = [];
   private unsubscribe: Unsubscribe | null = null;
+  private turnCounter = 0;
 
   /**
    * Creates a harness from its drivers.
@@ -70,6 +82,7 @@ export class VoiceConversationHarness<TSession = unknown> {
     this.synthesizer = drivers.synthesizer;
     this.transcriber = drivers.transcriber;
     this.transport = drivers.transport;
+    this.monitor = drivers.monitor;
     this.session = session;
   }
 
@@ -110,19 +123,30 @@ export class VoiceConversationHarness<TSession = unknown> {
     options: { timeoutMs?: number } = {}
   ): Promise<TurnResult> {
     const timeoutMs = options.timeoutMs ?? 30_000;
+    const turnIndex = this.turnCounter;
+    this.turnCounter += 1;
     const startedAt = Date.now();
+    this.notify({ kind: 'turn-started', turnIndex, say });
     const outbound = await this.synthesizer.synthesize(say);
+    this.notify({ kind: 'outbound-audio', turnIndex, clip: outbound });
     const baseline = this.inbound.length;
     await this.transport.sendAudio(outbound);
     const replyAudio = await this.waitForReply(baseline, timeoutMs);
+    this.notify({ kind: 'reply-audio', turnIndex, clip: replyAudio });
     const replyText = replyAudio
       ? (await this.transcriber.transcribe(replyAudio)).text
       : '';
-    return {
+    const heard = replyText.trim();
+    this.notify({ kind: 'transcript', turnIndex, text: heard });
+    const result: TurnResult = {
       said: say,
-      heard: replyText.trim(),
+      heard,
       roundTripMs: Date.now() - startedAt,
+      outbound,
+      reply: replyAudio,
     };
+    this.notify({ kind: 'turn-finished', turnIndex, result });
+    return result;
   }
 
   /**
@@ -140,6 +164,19 @@ export class VoiceConversationHarness<TSession = unknown> {
       results.push(result);
     }
     return results;
+  }
+
+  /**
+   * Delivers a monitor event without ever failing the turn: monitor bugs
+   * must not break the test they observe.
+   */
+  private notify(event: MonitorEvent): void {
+    if (this.monitor === undefined) return;
+    try {
+      this.monitor.onEvent(event);
+    } catch {
+      // Monitoring is best-effort by contract.
+    }
   }
 
   private async waitForReply(

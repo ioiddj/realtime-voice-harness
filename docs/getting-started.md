@@ -63,6 +63,26 @@ try {
 }
 ```
 
+## Hearing the synthesized audio
+
+Pass a monitor to hear exactly what a test said and heard. `NodeWavFileSink`
+records every turn to `turn-<n>-outbound.wav` / `turn-<n>-reply.wav` plus a
+`.txt` transcript — open them with any player (`ffplay`, Audacity):
+
+```ts
+const sink = new NodeWavFileSink({ directory: './voice-debug' });
+const harness = new VoiceConversationHarness({ synthesizer, transcriber, transport, monitor: sink });
+await harness.connect();
+await harness.runScript([...]);
+await harness.disconnect();
+await sink.drain(); // wait for pending writes before asserting on files
+```
+
+`ConsoleAudioMonitor` logs one line per stage for live debugging, and every
+`TurnResult` carries its `outbound`/`reply` clips for in-test inspection
+(`encodeWav`/`decodeWav` convert clips to playable WAV bytes). Monitors are
+best-effort: a throwing monitor never fails the turn it observes.
+
 ## Timeouts
 
 `harness.speak(text, { timeoutMs })` waits up to `timeoutMs` (default 30_000)

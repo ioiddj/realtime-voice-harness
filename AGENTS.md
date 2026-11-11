@@ -26,8 +26,9 @@ src/
   speech/        synthesizer/transcriber driver contracts
   transport/     realtime transport contract (IRealtimeTransport)
   transports/    concrete transports (AG-UI SSE, LangChain, OpenAI Realtime)
-  harness/       scripted conversation driver
+  harness/       scripted conversation driver + monitor events
   fakes/         in-memory doubles (no keys, mic, or network)
+  sinks/         Node-only monitor sinks (WAV file recording)
 tests/           unit + transport tests (vitest; relative imports into src)
 examples/        per-framework suites importing 'realtime-voice-harness' by name
 docs/            getting-started, frameworks, transports, roadmap

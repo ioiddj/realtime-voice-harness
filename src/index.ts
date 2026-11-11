@@ -6,6 +6,7 @@
  * moves never break consumers.
  */
 export { concatClips, DEFAULT_SAMPLE_RATE, type AudioClip } from './audio/AudioClip.js';
+export { decodeWav, encodeWav, WAV_HEADER_SIZE } from './audio/WavCodec.js';
 export type { ISpeechSynthesizer } from './speech/ISpeechSynthesizer.js';
 export type {
   ISpeechTranscriber,
@@ -22,6 +23,15 @@ export {
   type ScriptedTurn,
   type TurnResult,
 } from './harness/VoiceConversationHarness.js';
+export {
+  ConsoleAudioMonitor,
+  type IAudioMonitor,
+  type MonitorEvent,
+} from './harness/AudioMonitor.js';
+export {
+  NodeWavFileSink,
+  type WavSinkOptions,
+} from './sinks/NodeWavFileSink.js';
 export {
   AguiSseTransport,
   DEFAULT_CHAT_PATH,
