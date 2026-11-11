@@ -175,6 +175,15 @@ export class FakeTanStackConnection implements RealtimeConnection {
   }
 
   /**
+   * Restarts the reply sequence from the first scripted reply, so the
+   * connection can be reused across tests without leaking sequence position.
+   * @returns Nothing.
+   */
+  public reset(): void {
+    this.replyIndex = 0;
+  }
+
+  /**
    * Answers text with the next scripted reply, emitting a partial transcript,
    * a final transcript, and a message_complete asynchronously.
    * @param text - User text (content ignored; order matters).

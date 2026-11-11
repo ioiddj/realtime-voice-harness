@@ -139,6 +139,16 @@ export class ScriptedAppTransport implements IRealtimeTransport {
   }
 
   /**
+   * Restarts the reply sequence from the first scripted reply, so the
+   * transport can be reused across tests without leaking sequence position.
+   * Listeners and connection state are untouched.
+   * @returns Nothing.
+   */
+  public reset(): void {
+    this.replyIndex = 0;
+  }
+
+  /**
    * Accepts inbound audio and emits the next scripted reply asynchronously,
    * mimicking network + inference latency.
    * @param _audio - Inbound utterance (content ignored; order matters).

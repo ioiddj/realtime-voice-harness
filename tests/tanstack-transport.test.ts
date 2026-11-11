@@ -107,4 +107,22 @@ describe('TanStackTransport', () => {
     snapshot.voice = 'mutated';
     expect(connection.getSession().voice).toBe('alloy');
   });
+
+  it('restarts scripted replies after reset', async () => {
+    const heard: string[] = [];
+    const connection = new FakeTanStackConnection(['One.', 'Two.']);
+    connection.on('message_complete', (payload) => {
+      const part = payload.message.parts[0];
+      if (part !== undefined && part.type === 'text') {
+        heard.push(part.content);
+      }
+    });
+    connection.sendText('a');
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    connection.reset();
+    connection.sendText('b');
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(heard).toEqual(['One.', 'One.']);
+    await connection.disconnect();
+  });
 });

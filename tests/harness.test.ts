@@ -195,4 +195,26 @@ describe('VoiceConversationHarness', () => {
       await harness.disconnect();
     }
   });
+
+  it('restarts scripted replies after reset for reuse across tests', async () => {
+    const synthesizer = new FakeSynthesizer();
+    const transport = new ScriptedAppTransport(synthesizer, ['One.', 'Two.']);
+    const harness = new VoiceConversationHarness({
+      synthesizer,
+      transcriber: new FakeTranscriber(),
+      transport,
+    });
+    await harness.connect();
+    try {
+      const first = await harness.speak('a', { timeoutMs: 5_000 });
+      const second = await harness.speak('b', { timeoutMs: 5_000 });
+      expect(first.heard).toBe('One.');
+      expect(second.heard).toBe('Two.');
+      transport.reset();
+      const again = await harness.speak('c', { timeoutMs: 5_000 });
+      expect(again.heard).toBe('One.');
+    } finally {
+      await harness.disconnect();
+    }
+  });
 });
