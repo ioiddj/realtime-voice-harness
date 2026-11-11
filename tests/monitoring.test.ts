@@ -3,7 +3,7 @@
  * @module tests/monitoring
  */
 /// <reference types="node" />
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -154,5 +154,27 @@ describe('NodeWavFileSink', () => {
 
   it('rejects an empty directory loudly', () => {
     expect(() => new NodeWavFileSink({ directory: '  ' })).toThrow();
+  });
+
+  it('reports write failures through onError without failing', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'voice-harness-'));
+    try {
+      const blocker = join(dir, 'blocker');
+      await writeFile(blocker, 'x');
+      const errors: Error[] = [];
+      const sink = new NodeWavFileSink({
+        directory: join(blocker, 'sub'),
+        onError: (error: Error) => {
+          errors.push(error);
+        },
+      });
+      sink.onEvent({ kind: 'transcript', turnIndex: 0, text: 'hi' });
+      await sink.drain();
+      expect(errors).toHaveLength(1);
+      expect(errors[0]).toBeInstanceOf(Error);
+      expect(sink.getWrittenFiles()).toHaveLength(0);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
   });
 });

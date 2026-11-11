@@ -19,6 +19,12 @@ export interface WavSinkOptions {
   readonly directory: string;
   /** Filename prefix. Defaults to `'voice-'`. */
   readonly prefix?: string;
+  /**
+   * Called with write failures (unwritable directory, disk errors).
+   * Recording stays best-effort: without it, failures are silent and only
+   * visible as missing entries in `getWrittenFiles()`.
+   */
+  readonly onError?: (error: Error) => void;
 }
 
 /**
@@ -27,13 +33,14 @@ export interface WavSinkOptions {
 export class NodeWavFileSink implements IAudioMonitor {
   private readonly directory: string;
   private readonly prefix: string;
+  private readonly onError: ((error: Error) => void) | undefined;
   private readonly written: string[] = [];
   private pending: Promise<void>[] = [];
   private ready: Promise<void> | null = null;
 
   /**
    * Creates the sink. Nothing is written until events arrive.
-   * @param options - Output directory and filename prefix.
+   * @param options - Output directory, filename prefix, and error hook.
    */
   public constructor(options: WavSinkOptions) {
     if (options.directory.trim().length === 0) {
@@ -41,6 +48,7 @@ export class NodeWavFileSink implements IAudioMonitor {
     }
     this.directory = options.directory;
     this.prefix = options.prefix ?? 'voice-';
+    this.onError = options.onError;
   }
 
   /**
@@ -69,9 +77,13 @@ export class NodeWavFileSink implements IAudioMonitor {
       this.written.push(path);
     });
     this.pending.push(task);
-    void task.catch(() => undefined).finally(() => {
-      this.pending = this.pending.filter((p) => p !== task);
-    });
+    void task
+      .catch((error: unknown) => {
+        this.notifyError(error);
+      })
+      .finally(() => {
+        this.pending = this.pending.filter((p) => p !== task);
+      });
   }
 
   /**
@@ -89,6 +101,21 @@ export class NodeWavFileSink implements IAudioMonitor {
 
   private path(turnIndex: number, suffix: string): string {
     return join(this.directory, `${this.prefix}turn-${String(turnIndex)}-${suffix}`);
+  }
+
+  /**
+   * Reports a write failure without ever breaking recording.
+   * @param error - The failure to report, normalized to an Error.
+   */
+  private notifyError(error: unknown): void {
+    if (this.onError === undefined) return;
+    try {
+      this.onError(
+        error instanceof Error ? error : new Error(String(error))
+      );
+    } catch {
+      // An observer must never break recording.
+    }
   }
 
   private ensureDirectory(): Promise<void> {
