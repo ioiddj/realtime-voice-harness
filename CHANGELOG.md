@@ -5,6 +5,12 @@ changes pile at the top until the next version bump.
 
 ## Unreleased
 
+- Turn-level latency SLOs: `timeToFirstAudioMs` on every turn,
+  `LatencyBudget` + `assertLatency`.
+- First-party local speech: Supertonic TTS + Whisper STT via
+  transformers.js (no keys; live-verified end to end).
+- MCP toolkit: `voice_say` / `voice_script` / `voice_list` over any
+  transport (`createVoiceMcpToolkit`).
 - Fix: multi-segment replies keep the first clip's tag through `concatClips`,
   so chunked transports transcribe instead of yielding `[unrecognized]`.
 - `SpeakOptions.onTimeout`: opt-in `'throw'` on silent turns (default

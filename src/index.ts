@@ -90,3 +90,8 @@ export {
   VOICE_NAMES,
   type FakeVoiceName,
 } from './fakes/VoicePresets.js';
+export {
+  createVoiceMcpToolkit,
+  type VoiceMcpOptions,
+  type VoiceMcpToolkit,
+} from './mcp/voiceTools.js';

@@ -78,11 +78,12 @@ bun run test:examples   # build + all framework/agent suites
 
 | Suite | Runner | Command | Status |
 |---|---|---|---|
-| Unit + transports (tests/) | vitest | `bun run test` | 26/26 pass |
+| Unit + transports (tests/) | vitest | `bun run test` | 39/39 pass |
 | bun example | bun:test | `bun run test:bun` | 2/2 pass |
 | node example | node:test | `bun run test:node` | 2/2 pass |
 | jest example | jest (@swc/jest) | `bun run test:jest` | 2/2 pass |
 | Playwright example | @playwright/test | `bun run test:playwright` | 2/2 pass, no browser launched |
+| Local speech (transformers.js) | vitest | `bun run test:local-speech` | 3/3 pass, first run downloads models |
 | LangChain transport | vitest | `bun run test:langchain` | 4/4 pass |
 | TanStack transport (+ example) | vitest | `bun run test` + `bun run test:tanstack` | 5 + 2 pass |
 | OpenAI Realtime validation | vitest | `bun run test:openai-realtime` | 4/4 pass (negative tests only) |

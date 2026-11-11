@@ -22,11 +22,12 @@ Text-in/text-out test harness for realtime voice apps with agentic harnesses. A 
 
 ```text
 src/
-  audio/         PCM audio value objects
-  speech/        synthesizer/transcriber driver contracts
+  audio/         PCM audio value objects + WAV codec
+  speech/        driver contracts; speech/local/ (transformers.js adapters)
   transport/     realtime transport contract (IRealtimeTransport)
   transports/    concrete transports (AG-UI SSE, LangChain, OpenAI Realtime)
-  harness/       scripted conversation driver + monitor events
+  harness/       scripted conversation driver + monitor events + latency SLOs
+  mcp/           MCP toolkit (voice_say/script/list over any transport)
   fakes/         in-memory doubles (no keys, mic, or network)
   sinks/         Node-only monitor sinks (WAV file recording)
 tests/           unit + transport tests (vitest; relative imports into src)

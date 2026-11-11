@@ -15,7 +15,7 @@
 - **Push `origin/main`.** Remote set, local commits, never pushed. Say the word.
 - **npm publish.** Needs `private: false` + explicit go-ahead (see
   `docs/roadmap.md` → Publishing).
-- **Mastra / VoltAgent / MCP server.** Roadmap notes only; unapproved.
+- **Mastra / VoltAgent.** Roadmap notes only; unapproved.
 
 ## Unverified (could not be checked here)
 

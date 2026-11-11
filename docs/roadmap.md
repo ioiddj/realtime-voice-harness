@@ -34,12 +34,12 @@ Same text-bridge entry: wrap the agent's text-generation call (believed to be
 3. **Telemetry** — attach `TurnResult` (`said`/`heard`/`roundTripMs`) to
    VoltAgent's logger for harness-run traces (**verify** hook names).
 
-## MCP toolkit server — deferred
+## MCP toolkit server — built
 
-Decision: ship the library + docs first. An MCP server exposing
-speak/listen/transcribe tools over stdio remains a reasonable next step once a
-first consumer needs it; it should reuse `VoiceConversationHarness` directly
-rather than reimplementing the loop.
+`createVoiceMcpToolkit` (`src/mcp/voiceTools.ts`) exposes `voice_say`,
+`voice_script`, and `voice_list` over any MCP transport (stdio for real
+agents, in-memory in `tests/mcp-server.test.ts`). Reuses the harness
+directly; the harness connects lazily on the first tool call.
 
 ## Publishing
 

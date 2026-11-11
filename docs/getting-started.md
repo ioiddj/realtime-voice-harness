@@ -83,6 +83,20 @@ local loop) and the same text-in/text-out assertions hold. First run takes
 minutes (download + WASM init); later runs start in seconds. See
 `examples/local-speech/` (run: `bun run test:local-speech`).
 
+## Driving the harness from an agent (MCP)
+
+`createVoiceMcpToolkit({ drivers })` exposes the loop as MCP tools —
+`voice_say`, `voice_script`, `voice_list` — so an agent can run voice tests
+on itself or on another app. The harness connects lazily on the first call:
+
+```ts
+const toolkit = createVoiceMcpToolkit({ drivers });
+await toolkit.server.connect(new StdioServerTransport());
+```
+
+`voice_say` returns `{ said, heard, roundTripMs, timeToFirstAudioMs }` as
+JSON. See `tests/mcp-server.test.ts` (in-memory transport, no I/O).
+
 ## Hearing the synthesized audio
 
 Pass a monitor to hear exactly what a test said and heard. `NodeWavFileSink`
