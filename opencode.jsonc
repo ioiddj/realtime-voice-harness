@@ -1,0 +1,20 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Ask before anything that reaches a remote or destroys work.
+  "permissions": [
+    { "action": "shell", "resource": "git push *", "effect": "ask" },
+    { "action": "shell", "resource": "rm -rf *", "effect": "ask" }
+  ],
+
+  // Format on write when a formatter is available for the stack.
+  "formatter": true,
+
+  // Keep build output and dependencies out of filesystem notifications.
+  "watcher": {
+    "ignore": ["node_modules/**", "dist/**", ".git/**"]
+  },
+
+  // TypeScript project — real LSP.
+  "lsp": { "typescript": { "command": ["tsc", "--noEmit"] } }
+}

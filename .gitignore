@@ -1,0 +1,21 @@
+# --- universal ---
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+*.log
+
+# --- node ---
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+*.tsbuildinfo
+coverage/
+
+# --- opencode ---
+# Config, AGENTS.md, and .opencode/skills/ ARE committed. Only local state is not.
+.opencode/state/
+*.local.json
