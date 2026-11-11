@@ -12,6 +12,7 @@ Text-in/text-out test harness for realtime voice apps with agentic harnesses. A 
 
 - Install: `bun install`
 - Test: `bun run test` (vitest, headless in-memory doubles)
+- Typecheck: `bun run typecheck` (`tsgo --noEmit`, native TS 7 preview; `tsc` still installed for editor/LSP compat)
 - Lint: `bun run lint` (eslint, zero warnings)
 - Typecheck: `bun run typecheck` (`tsc --noEmit`)
 - Build: `bun run build` (emits `dist/` with declarations)
