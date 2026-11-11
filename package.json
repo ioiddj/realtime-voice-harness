@@ -1,6 +1,6 @@
 {
   "name": "realtime-voice-harness",
-  "private": true,
+  "private": false,
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
