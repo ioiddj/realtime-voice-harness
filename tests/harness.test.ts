@@ -71,8 +71,40 @@ describe('VoiceConversationHarness', () => {
     }
   });
 
-  it('fails loudly when no replies are scripted', async () => {
+  it('supports async reply assertions (async framework matchers)', async () => {
     const synthesizer = new FakeSynthesizer();
+    const transcriber = new FakeTranscriber();
+    const transport = new ScriptedAppTransport(synthesizer, [
+      'Async hello.',
+    ]);
+    const harness = new VoiceConversationHarness({
+      synthesizer,
+      transcriber,
+      transport,
+    });
+
+    await harness.connect();
+    try {
+      const results = await harness.runScript([
+        {
+          say: 'Hi.',
+          expectReply: (reply) =>
+            new Promise<void>((resolve, reject) => {
+              if (reply === 'Async hello.') {
+                resolve();
+              } else {
+                reject(new Error(`unexpected reply: ${reply}`));
+              }
+            }),
+        },
+      ]);
+      expect(results).toHaveLength(1);
+    } finally {
+      await harness.disconnect();
+    }
+  });
+
+  it('fails loudly when no replies are scripted', async () => {    const synthesizer = new FakeSynthesizer();
     const transcriber = new FakeTranscriber();
     const transport = new ScriptedAppTransport(synthesizer, []);
     const harness = new VoiceConversationHarness({

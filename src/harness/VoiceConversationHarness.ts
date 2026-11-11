@@ -11,6 +11,7 @@
  * the conversation logic.
  */
 import type { AudioClip } from '../audio/AudioClip.js';
+import { concatClips } from '../audio/AudioClip.js';
 import type { ISpeechSynthesizer } from '../speech/ISpeechSynthesizer.js';
 import type { ISpeechTranscriber } from '../speech/ISpeechTranscriber.js';
 import type {
@@ -22,8 +23,11 @@ import type {
 export interface ScriptedTurn {
   /** What the harness "says" (synthesized to audio). */
   readonly say: string;
-  /** Optional assertion over the app's transcribed reply. */
-  readonly expectReply?: (reply: string) => void;
+  /**
+   * Optional assertion over the app's transcribed reply. May be async to
+   * support frameworks with asynchronous matchers; rejections fail the turn.
+   */
+  readonly expectReply?: (reply: string) => void | Promise<void>;
 }
 
 /** Result of one executed turn. */
@@ -131,7 +135,7 @@ export class VoiceConversationHarness<TSession = unknown> {
     for (const turn of script) {
       const result = await this.speak(turn.say);
       if (turn.expectReply) {
-        turn.expectReply(result.heard);
+        await turn.expectReply(result.heard);
       }
       results.push(result);
     }
@@ -147,21 +151,10 @@ export class VoiceConversationHarness<TSession = unknown> {
       if (this.inbound.length > baseline) {
         const clips = this.inbound.slice(baseline);
         this.inbound = [];
-        const first = clips[0] as AudioClip;
         if (clips.length === 1) {
-          return first;
+          return clips[0] as AudioClip;
         }
-        let total = 0;
-        for (const clip of clips) {
-          total += clip.samples.length;
-        }
-        const joined = new Float32Array(total);
-        let offset = 0;
-        for (const clip of clips) {
-          joined.set(clip.samples, offset);
-          offset += clip.samples.length;
-        }
-        return { samples: joined, sampleRate: first.sampleRate };
+        return concatClips(clips);
       }
       if (Date.now() >= deadline) {
         return null;
