@@ -23,6 +23,22 @@ export {
   type TurnResult,
 } from './harness/VoiceConversationHarness.js';
 export {
+  AguiSseTransport,
+  DEFAULT_CHAT_PATH,
+  parseAguiSseText,
+  type AguiSseTransportOptions,
+} from './transports/AguiSseTransport.js';
+export {
+  LangChainTransport,
+  type LangChainTransportOptions,
+} from './transports/LangChainTransport.js';
+export {
+  OpenAiRealtimeTransport,
+  DEFAULT_REALTIME_MODEL,
+  DEFAULT_REALTIME_VOICE,
+  type OpenAiRealtimeTransportOptions,
+} from './transports/OpenAiRealtimeTransport.js';
+export {
   FakeSynthesizer,
   FakeTranscriber,
   ScriptedAppTransport,

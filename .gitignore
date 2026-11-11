@@ -19,3 +19,4 @@ coverage/
 # Config, AGENTS.md, and .opencode/skills/ ARE committed. Only local state is not.
 .opencode/state/
 *.local.json
+test-results/
