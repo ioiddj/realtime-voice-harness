@@ -17,12 +17,26 @@ export interface AudioClip {
 /** Default sample rate (Hz) used by test doubles. */
 export const DEFAULT_SAMPLE_RATE: number = 16000;
 
+/** Options for {@link concatClips}. */
+export interface ConcatClipsOptions {
+  /**
+   * Tag carried onto the joined clip. Joined audio is otherwise untagged,
+   * which makes tagged test doubles unresolvable — pass the first clip's
+   * tag when joining chunks of one utterance.
+   */
+  readonly tag?: string;
+}
+
 /**
  * Concatenates clips that share a sample rate.
  * @param clips - Clips to join in order.
+ * @param options - Optional tag carried onto the joined clip.
  * @returns A single clip with the joined samples.
  */
-export function concatClips(clips: readonly AudioClip[]): AudioClip {
+export function concatClips(
+  clips: readonly AudioClip[],
+  options?: ConcatClipsOptions
+): AudioClip {
   if (clips.length === 0) {
     return { samples: new Float32Array(0), sampleRate: DEFAULT_SAMPLE_RATE };
   }
@@ -38,5 +52,8 @@ export function concatClips(clips: readonly AudioClip[]): AudioClip {
     joined.set(clip.samples, offset);
     offset += clip.samples.length;
   }
-  return { samples: joined, sampleRate };
+  if (options?.tag === undefined) {
+    return { samples: joined, sampleRate };
+  }
+  return { samples: joined, sampleRate, tag: options.tag };
 }

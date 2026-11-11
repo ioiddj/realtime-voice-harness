@@ -8,6 +8,8 @@ import {
   FakeTranscriber,
   ScriptedAppTransport,
   VoiceConversationHarness,
+  type AudioClip,
+  type IRealtimeTransport,
 } from '../src/index.js';
 
 describe('VoiceConversationHarness', () => {
@@ -104,7 +106,50 @@ describe('VoiceConversationHarness', () => {
     }
   });
 
-  it('fails loudly when no replies are scripted', async () => {    const synthesizer = new FakeSynthesizer();
+  it('transcribes chunked replies that arrive as multiple segments', async () => {
+    const synthesizer = new FakeSynthesizer();
+    let emit: ((audio: AudioClip) => void) | null = null;
+    const transport: IRealtimeTransport = {
+      connect: () => Promise.resolve(),
+      disconnect: () => Promise.resolve(),
+      sendAudio: (_audio: AudioClip) => {
+        void (async () => {
+          // One utterance, two chunks, both tagged with the full reply text.
+          const first = await synthesizer.synthesize('Hello, human.');
+          const second = await synthesizer.synthesize('Hello, human.');
+          queueMicrotask(() => {
+            emit?.({ ...first, samples: first.samples.slice(0, 6) });
+            emit?.({ ...second, samples: second.samples.slice(6) });
+          });
+        })();
+        return Promise.resolve();
+      },
+      onAudio: (listener: (audio: AudioClip) => void) => {
+        emit = listener;
+        return () => {
+          emit = null;
+        };
+      },
+    };
+    const harness = new VoiceConversationHarness({
+      synthesizer,
+      transcriber: new FakeTranscriber(),
+      transport,
+    });
+
+    await harness.connect();
+    try {
+      const result = await harness.speak('Hello, agent.', {
+        timeoutMs: 5_000,
+      });
+      expect(result.heard).toBe('Hello, human.');
+    } finally {
+      await harness.disconnect();
+    }
+  });
+
+  it('fails loudly when no replies are scripted', async () => {
+    const synthesizer = new FakeSynthesizer();
     const transcriber = new FakeTranscriber();
     const transport = new ScriptedAppTransport(synthesizer, []);
     const harness = new VoiceConversationHarness({

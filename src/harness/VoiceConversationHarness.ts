@@ -188,10 +188,16 @@ export class VoiceConversationHarness<TSession = unknown> {
       if (this.inbound.length > baseline) {
         const clips = this.inbound.slice(baseline);
         this.inbound = [];
+        const first = clips[0] as AudioClip;
         if (clips.length === 1) {
-          return clips[0] as AudioClip;
+          return first;
         }
-        return concatClips(clips);
+        // Multi-segment reply (chunked/streamed transport): keep the first
+        // clip's tag so tagged doubles stay resolvable after the join.
+        if (first.tag === undefined) {
+          return concatClips(clips);
+        }
+        return concatClips(clips, { tag: first.tag });
       }
       if (Date.now() >= deadline) {
         return null;

@@ -5,7 +5,12 @@
  * The package entry point. Import harness pieces from here so internal
  * moves never break consumers.
  */
-export { concatClips, DEFAULT_SAMPLE_RATE, type AudioClip } from './audio/AudioClip.js';
+export {
+  concatClips,
+  DEFAULT_SAMPLE_RATE,
+  type AudioClip,
+  type ConcatClipsOptions,
+} from './audio/AudioClip.js';
 export { decodeWav, encodeWav, WAV_HEADER_SIZE } from './audio/WavCodec.js';
 export type { ISpeechSynthesizer } from './speech/ISpeechSynthesizer.js';
 export type {
