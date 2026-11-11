@@ -30,6 +30,10 @@ export {
   type TurnResult,
 } from './harness/VoiceConversationHarness.js';
 export {
+  assertLatency,
+  type LatencyBudget,
+} from './harness/latency.js';
+export {
   ConsoleAudioMonitor,
   type IAudioMonitor,
   type MonitorEvent,

@@ -55,6 +55,11 @@ export interface TurnResult {
   readonly outbound: AudioClip;
   /** Captured reply audio, or null when the app stayed silent. */
   readonly reply: AudioClip | null;
+  /**
+   * Milliseconds from send to the first reply audio (null on silence).
+   * The voice-UX figure that matters: time until the app starts answering.
+   */
+  readonly timeToFirstAudioMs: number | null;
 }
 
 /** Dependencies injected into the harness (all interfaces, no concretes). */
@@ -143,7 +148,8 @@ export class VoiceConversationHarness<TSession = unknown> {
     this.notify({ kind: 'outbound-audio', turnIndex, clip: outbound });
     const baseline = this.inbound.length;
     await this.transport.sendAudio(outbound);
-    const replyAudio = await this.waitForReply(baseline, timeoutMs);
+    const reply = await this.waitForReply(baseline, timeoutMs);
+    const replyAudio = reply.clip;
     if (replyAudio === null && onTimeout === 'throw') {
       throw new Error(
         `VoiceConversationHarness heard no reply within ${String(timeoutMs)}ms.`
@@ -161,6 +167,8 @@ export class VoiceConversationHarness<TSession = unknown> {
       roundTripMs: Date.now() - startedAt,
       outbound,
       reply: replyAudio,
+      timeToFirstAudioMs:
+        reply.firstByteMs === null ? null : reply.firstByteMs - startedAt,
     };
     this.notify({ kind: 'turn-finished', turnIndex, result });
     return result;
@@ -199,25 +207,26 @@ export class VoiceConversationHarness<TSession = unknown> {
   private async waitForReply(
     baseline: number,
     timeoutMs: number
-  ): Promise<AudioClip | null> {
+  ): Promise<{ clip: AudioClip | null; firstByteMs: number | null }> {
     const deadline = Date.now() + timeoutMs;
     for (;;) {
       if (this.inbound.length > baseline) {
+        const firstByteMs = Date.now();
         const clips = this.inbound.slice(baseline);
         this.inbound = [];
         const first = clips[0] as AudioClip;
         if (clips.length === 1) {
-          return first;
+          return { clip: first, firstByteMs };
         }
         // Multi-segment reply (chunked/streamed transport): keep the first
         // clip's tag so tagged doubles stay resolvable after the join.
         if (first.tag === undefined) {
-          return concatClips(clips);
+          return { clip: concatClips(clips), firstByteMs };
         }
-        return concatClips(clips, { tag: first.tag });
+        return { clip: concatClips(clips, { tag: first.tag }), firstByteMs };
       }
       if (Date.now() >= deadline) {
-        return null;
+        return { clip: null, firstByteMs: null };
       }
       await new Promise((resolve) => setTimeout(resolve, 25));
     }
