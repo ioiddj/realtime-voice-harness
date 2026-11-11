@@ -30,6 +30,7 @@ export default tseslint.config(
             'examples/bun/*.ts',
             'examples/jest/*.ts',
             'examples/langchain/*.ts',
+            'examples/local-speech/*.ts',
             'examples/midscene/*.ts',
             'examples/node/*.mts',
             'examples/openai-realtime/*.ts',

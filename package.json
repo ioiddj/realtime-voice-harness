@@ -27,12 +27,13 @@
     "typecheck": "tsgo --noEmit && tsgo --noEmit -p tsconfig.examples.json",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\" \"examples/**/*.ts\" --max-warnings 0",
     "test": "vitest run",
-    "test:examples": "bun run build && bun run test:bun && bun run test:node && bun run test:jest && bun run test:playwright && bun run test:langchain && bun run test:tanstack && bun run test:openai-realtime && bun run test:midscene",
+    "test:examples": "bun run build && bun run test:bun && bun run test:node && bun run test:jest && bun run test:playwright && bun run test:langchain && bun run test:tanstack && bun run test:local-speech && bun run test:openai-realtime && bun run test:midscene",
     "test:bun": "bun test examples/bun",
     "test:node": "node --test \"examples/node/**/*.test.mjs\"",
     "test:jest": "jest --config examples/jest/jest.config.cjs",
     "test:playwright": "playwright test --config examples/playwright/playwright.config.ts",
     "test:langchain": "vitest run --config vitest.examples.config.ts examples/langchain",
+    "test:local-speech": "vitest run --config vitest.examples.config.ts examples/local-speech",
     "test:tanstack": "vitest run --config vitest.examples.config.ts examples/tanstack",
     "test:openai-realtime": "vitest run --config vitest.examples.config.ts examples/openai-realtime",
     "test:midscene": "playwright test --config examples/midscene/playwright.config.ts"
@@ -56,6 +57,7 @@
     "vitest": "^5.1.0"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.3.2",
     "@tanstack/ai": "^1.4.0"
   }
 }

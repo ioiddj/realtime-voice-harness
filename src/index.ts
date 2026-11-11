@@ -74,6 +74,17 @@ export {
   ScriptedAppTransport,
 } from './fakes/FakeDoubles.js';
 export {
+  TransformersSttAdapter,
+  DEFAULT_STT_MODEL,
+  type TransformersSttOptions,
+} from './speech/local/TransformersSttAdapter.js';
+export {
+  TransformersTtsAdapter,
+  DEFAULT_TTS_MODEL,
+  DEFAULT_TTS_VOICE,
+  type TransformersTtsOptions,
+} from './speech/local/TransformersTtsAdapter.js';
+export {
   isFakeVoiceName,
   renderVoiceSamples,
   VOICE_NAMES,

@@ -63,6 +63,26 @@ try {
 }
 ```
 
+## Real local speech (no keys)
+
+`TransformersTtsAdapter` (Supertonic) and `TransformersSttAdapter` (Whisper
+tiny) run entirely in-process via `@huggingface/transformers` — no API keys,
+no network after the one-time model download (~450MB total, cached in the
+Hugging Face cache afterwards):
+
+```ts
+const harness = new VoiceConversationHarness({
+  synthesizer: new TransformersTtsAdapter(),
+  transcriber: new TransformersSttAdapter(),
+  transport,
+});
+```
+
+Drop them into any transport (including `ScriptedAppTransport` for a fully
+local loop) and the same text-in/text-out assertions hold. First run takes
+minutes (download + WASM init); later runs start in seconds. See
+`examples/local-speech/` (run: `bun run test:local-speech`).
+
 ## Hearing the synthesized audio
 
 Pass a monitor to hear exactly what a test said and heard. `NodeWavFileSink`
