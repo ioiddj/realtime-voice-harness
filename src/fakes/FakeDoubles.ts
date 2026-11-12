@@ -34,9 +34,9 @@ export class FakeSynthesizer implements ISpeechSynthesizer {
 
   /**
    * Creates the synthesizer double.
-   * @param voice - Voice signature to render. Defaults to `'default'`.
+   * @param voice - Voice signature to render. Defaults to `'mlg'`.
    */
-  public constructor(voice: FakeVoiceName = 'default') {
+  public constructor(voice: FakeVoiceName = 'mlg') {
     this.voice = voice;
   }
 

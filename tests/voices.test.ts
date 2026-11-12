@@ -27,11 +27,11 @@ describe('selectable voices', () => {
     expect(isFakeVoiceName('morgan-freeman')).toBe(false);
   });
 
-  it('defaults to the default voice and tags clips with voice and text', async () => {
+  it('defaults to the MLG voice and tags clips with voice and text', async () => {
     const synth = new FakeSynthesizer();
-    expect(synth.getVoice()).toBe('default');
+    expect(synth.getVoice()).toBe('mlg');
     const clip = await synth.synthesize('Hi');
-    expect(clip.tag).toBe('say:default:Hi');
+    expect(clip.tag).toBe('say:mlg:Hi');
   });
 
   it('resolves the same transcript in every voice', async () => {
