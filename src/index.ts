@@ -8,6 +8,7 @@
 export {
   concatClips,
   DEFAULT_SAMPLE_RATE,
+  resampleClip,
   type AudioClip,
   type ConcatClipsOptions,
 } from './audio/AudioClip.js';
@@ -76,6 +77,7 @@ export {
 export {
   TransformersSttAdapter,
   DEFAULT_STT_MODEL,
+  WHISPER_SAMPLE_RATE,
   type TransformersSttOptions,
 } from './speech/local/TransformersSttAdapter.js';
 export {

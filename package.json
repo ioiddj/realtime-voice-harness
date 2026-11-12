@@ -1,6 +1,6 @@
 {
   "name": "realtime-voice-harness",
-  "private": false,
+  "private": true,
   "version": "0.1.0",
   "license": "MIT",
   "type": "module",
@@ -33,7 +33,6 @@
     "test:jest": "jest --config examples/jest/jest.config.cjs",
     "test:playwright": "playwright test --config examples/playwright/playwright.config.ts",
     "test:langchain": "vitest run --config vitest.examples.config.ts examples/langchain",
-    "test:live-nim": "vitest run --config vitest.examples.config.ts examples/live-nim",
     "test:live-nim": "vitest run --config vitest.examples.config.ts examples/live-nim",
     "test:mastra": "vitest run --config vitest.examples.config.ts examples/mastra",
     "test:voltagent": "vitest run --config vitest.examples.config.ts examples/voltagent",

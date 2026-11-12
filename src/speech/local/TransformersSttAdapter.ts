@@ -9,6 +9,7 @@
  * consumers never `require()` the ESM-only engine.
  */
 import type { DataType, DeviceType } from '@huggingface/transformers';
+import { resampleClip } from '../../audio/AudioClip.js';
 import type { AudioClip } from '../../audio/AudioClip.js';
 import type {
   ISpeechTranscriber,
@@ -39,6 +40,9 @@ export interface TransformersSttOptions {
 /** Default model: small, fast, English-only Whisper. */
 export const DEFAULT_STT_MODEL: string = 'onnx-community/whisper-tiny.en';
 
+/** Sample rate Whisper natively hears. Clips are resampled to this. */
+export const WHISPER_SAMPLE_RATE: number = 16000;
+
 /**
  * Local speech-to-text: Whisper in-process, no keys, no network after the
  * one-time model download.
@@ -60,14 +64,17 @@ export class TransformersSttAdapter implements ISpeechTranscriber {
   }
 
   /**
-   * Transcribes spoken audio with the local Whisper model.
+   * Transcribes spoken audio with the local Whisper model. Audio is
+   * resampled to 16 kHz first: Whisper hears wrong (slow-motion) speech at
+   * any other rate, which surfaces as confident hallucinations.
    * @param audio - Audio segment to recognize.
    * @returns The recognized text (may be empty on silence).
    */
   public async transcribe(audio: AudioClip): Promise<TranscriptionResult> {
     const pipeline = await this.load();
-    const output = await pipeline(audio.samples, {
-      sampling_rate: audio.sampleRate,
+    const clip = resampleClip(audio, WHISPER_SAMPLE_RATE);
+    const output = await pipeline(clip.samples, {
+      sampling_rate: clip.sampleRate,
     });
     const text = Array.isArray(output)
       ? output.map((part) => part.text).join(' ')

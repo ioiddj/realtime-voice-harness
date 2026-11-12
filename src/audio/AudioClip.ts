@@ -57,3 +57,32 @@ export function concatClips(
   }
   return { samples: joined, sampleRate, tag: options.tag };
 }
+
+/**
+ * Resamples a clip to a target rate with linear interpolation.
+ * Pass-through when the rates already match. The tag is preserved: this is
+ * still the same utterance, so tagged doubles keep resolving.
+ * @param clip - Audio to resample.
+ * @param targetRate - Sample rate in Hz.
+ * @returns A clip at `targetRate`.
+ */
+export function resampleClip(clip: AudioClip, targetRate: number): AudioClip {
+  if (clip.sampleRate === targetRate) {
+    return clip;
+  }
+  const count = Math.max(
+    1,
+    Math.floor((clip.samples.length * targetRate) / clip.sampleRate)
+  );
+  const resampled = new Float32Array(count);
+  for (let i = 0; i < count; i++) {
+    const position = (i * clip.sampleRate) / targetRate;
+    const lower = Math.floor(position);
+    const fraction = position - lower;
+    const first = clip.samples[lower] as number;
+    const second = clip.samples[Math.min(lower + 1, clip.samples.length - 1)] as number;
+    resampled[i] = first + (second - first) * fraction;
+  }
+  const result: AudioClip = { samples: resampled, sampleRate: targetRate };
+  return clip.tag === undefined ? result : { ...result, tag: clip.tag };
+}
