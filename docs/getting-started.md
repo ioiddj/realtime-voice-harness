@@ -164,7 +164,9 @@ const clip = await mlg.synthesize('Oh baby, a triple!');
 ```
 
 Drop it anywhere a synthesizer goes — harness drivers, transports, app
-voice slots. The Innerview voice loop answers in it by default.
+voice slots. The Innerview voice loop answers in it by default. Bring your
+own vintage blast: pass it as `airhornSample` (any `AudioClip` — resampled
+and peak-normalized automatically) and the tribute square wave retires.
 
 ## Custom transcripts
 

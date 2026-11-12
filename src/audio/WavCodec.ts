@@ -46,13 +46,16 @@ export function encodeWav(clip: AudioClip): Uint8Array {
 }
 
 /**
- * Decodes 16-bit PCM mono WAV bytes produced by {@link encodeWav}.
+ * Decodes 16-bit PCM mono WAV bytes produced by {@link encodeWav} (or any
+ * tool writing them, e.g. ffmpeg). Extra chunks (`LIST`, `bext`, ...),
+ * which real-world files commonly carry between `fmt ` and `data`, are
+ * skipped; format requirements (PCM, mono, 16-bit) are still enforced.
  * @param bytes - WAV file bytes.
  * @returns The decoded clip (tag is not preserved by the format).
  */
 export function decodeWav(bytes: Uint8Array): AudioClip {
-  if (bytes.length < WAV_HEADER_SIZE) {
-    throw new Error('decodeWav requires at least 44 WAV header bytes.');
+  if (bytes.length < 12) {
+    throw new Error('decodeWav requires at least a 12-byte RIFF header.');
   }
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const readAscii = (offset: number, length: number): string => {
@@ -62,23 +65,44 @@ export function decodeWav(bytes: Uint8Array): AudioClip {
     }
     return text;
   };
-  if (
-    readAscii(0, 4) !== 'RIFF' ||
-    readAscii(8, 4) !== 'WAVE' ||
-    readAscii(12, 4) !== 'fmt ' ||
-    view.getUint16(20, true) !== 1 ||
-    view.getUint16(22, true) !== 1 ||
-    view.getUint16(34, true) !== 16 ||
-    readAscii(36, 4) !== 'data'
-  ) {
+  if (readAscii(0, 4) !== 'RIFF' || readAscii(8, 4) !== 'WAVE') {
+    throw new Error('decodeWav requires a RIFF/WAVE file.');
+  }
+  let audioFormat = 0;
+  let channels = 0;
+  let sampleRate = 0;
+  let bitsPerSample = 0;
+  let dataOffset = -1;
+  let dataBytes = 0;
+  let offset = 12;
+  while (offset + 8 <= bytes.length) {
+    const id = readAscii(offset, 4);
+    const size = view.getUint32(offset + 4, true);
+    if (id === 'fmt ') {
+      if (offset + 24 > bytes.length) {
+        throw new Error('decodeWav found a truncated fmt chunk.');
+      }
+      audioFormat = view.getUint16(offset + 8, true);
+      channels = view.getUint16(offset + 10, true);
+      sampleRate = view.getUint32(offset + 12, true);
+      bitsPerSample = view.getUint16(offset + 22, true);
+    } else if (id === 'data') {
+      dataOffset = offset + 8;
+      dataBytes = size;
+      break;
+    }
+    offset += 8 + size + (size % 2);
+  }
+  if (dataOffset < 0) {
+    throw new Error('decodeWav found no data chunk.');
+  }
+  if (audioFormat !== 1 || channels !== 1 || bitsPerSample !== 16) {
     throw new Error('decodeWav supports 16-bit PCM mono WAV only.');
   }
-  const sampleRate = view.getUint32(24, true);
-  const dataBytes = view.getUint32(40, true);
   const count = Math.floor(dataBytes / 2);
   const samples = new Float32Array(count);
   for (let i = 0; i < count; i++) {
-    samples[i] = view.getInt16(WAV_HEADER_SIZE + i * 2, true) / 32767;
+    samples[i] = view.getInt16(dataOffset + i * 2, true) / 32767;
   }
   return {
     samples,

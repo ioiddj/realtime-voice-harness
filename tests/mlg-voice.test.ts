@@ -46,8 +46,7 @@ describe('MlgVoice', () => {
     expect(second.samples.length).toBe(first.samples.length - Math.floor(16000 * 0.45));
   });
 
-  it('preserves tags and stays deterministic', async () => {
-    const voice = new MlgVoice({
+  it('preserves tags and stays deterministic', async () => {    const voice = new MlgVoice({
       synthesizer: new FakeSynthesizer('whisper'),
       airhorn: 'off',
     });
@@ -55,5 +54,32 @@ describe('MlgVoice', () => {
     const second = await voice.synthesize('Hello there.');
     expect(first.tag).toBe('say:whisper:Hello there.');
     expect(Array.from(first.samples)).toEqual(Array.from(second.samples));
+  });
+
+  it('plays a provided vintage blast instead of the synthesized one', async () => {
+    const voice = new MlgVoice({
+      synthesizer: new FakeSynthesizer(),
+      airhorn: 'every',
+      airhornSample: {
+        samples: new Float32Array([0, 0.5, -0.5, 0.25]),
+        sampleRate: 16000,
+      },
+    });
+    const clip = await voice.synthesize('Hi');
+    // Peak-normalized to 0.95: the third sample keeps its negative sign,
+    // while the square-wave fallback would be positive there.
+    expect(clip.samples[2] as number).toBeLessThan(0);
+    expect(Math.abs(clip.samples[1] as number)).toBeCloseTo(0.95, 5);
+  });
+
+  it('skips silent vintage blasts instead of prepending nothing', async () => {
+    const voice = new MlgVoice({
+      synthesizer: new FakeSynthesizer('default'),
+      airhorn: 'every',
+      airhornSample: { samples: new Float32Array(4), sampleRate: 16000 },
+    });
+    const clip = await voice.synthesize('Hi');
+    // Slowed 'Hi' (2 chars at 1.22x) with no blast prepended.
+    expect(clip.samples.length).toBe(2);
   });
 });

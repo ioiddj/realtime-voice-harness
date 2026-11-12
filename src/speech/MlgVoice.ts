@@ -34,6 +34,12 @@ export interface MlgVoiceOptions {
    * pure depth — a blast on every turn deafens speech recognition).
    */
   readonly airhorn?: MlgAirhorn;
+  /**
+   * Authentic blast: a real airhorn clip prepended instead of the
+   * synthesized square-wave fallback. Resampled to the reply rate and
+   * peak-normalized to 0.95. Bring your own vintage `.wav`.
+   */
+  readonly airhornSample?: AudioClip;
 }
 
 /** Airhorn blast length in seconds. */
@@ -52,11 +58,12 @@ export class MlgVoice implements ISpeechSynthesizer {
   private readonly slowdown: number;
   private readonly bassBoost: number;
   private readonly airhorn: MlgAirhorn;
+  private readonly airhornSample: AudioClip | undefined;
   private aired = false;
 
   /**
    * Creates the MLG voice over an inner synthesizer.
-   * @param options - Inner voice, slowdown, bass, and airhorn policy.
+   * @param options - Inner voice, slowdown, bass, airhorn policy and sample.
    */
   public constructor(options: MlgVoiceOptions = {}) {
     if (options.slowdown !== undefined && options.slowdown < 1) {
@@ -66,6 +73,7 @@ export class MlgVoice implements ISpeechSynthesizer {
     this.slowdown = options.slowdown ?? 1.22;
     this.bassBoost = options.bassBoost ?? 1.6;
     this.airhorn = options.airhorn ?? 'first';
+    this.airhornSample = options.airhornSample;
   }
 
   /**
@@ -130,17 +138,45 @@ export class MlgVoice implements ISpeechSynthesizer {
   }
 
   private concatBlast(clip: AudioClip): Float32Array {
-    const blastLength = Math.floor(clip.sampleRate * AIRHORN_SECONDS);
-    const joined = new Float32Array(blastLength + clip.samples.length);
+    const blast = this.renderBlast(clip.sampleRate);
+    const joined = new Float32Array(blast.length + clip.samples.length);
+    joined.set(blast, 0);
+    joined.set(clip.samples, blast.length);
+    return joined;
+  }
+
+  /**
+   * Renders the blast: the provided vintage sample (resampled and
+   * peak-normalized), or the synthesized square-wave fallback.
+   */
+  private renderBlast(sampleRate: number): Float32Array {
+    if (this.airhornSample !== undefined) {
+      const fitted = resampleClip(this.airhornSample, sampleRate);
+      let peak = 0;
+      for (let i = 0; i < fitted.samples.length; i++) {
+        const value = Math.abs(fitted.samples[i] as number);
+        if (value > peak) peak = value;
+      }
+      if (peak <= 0) {
+        return new Float32Array(0);
+      }
+      const gain = 0.95 / peak;
+      const out = new Float32Array(fitted.samples.length);
+      for (let i = 0; i < out.length; i++) {
+        out[i] = (fitted.samples[i] as number) * gain;
+      }
+      return out;
+    }
+    const blastLength = Math.floor(sampleRate * AIRHORN_SECONDS);
+    const out = new Float32Array(blastLength);
     for (let i = 0; i < blastLength; i++) {
-      const t = i / clip.sampleRate;
+      const t = i / sampleRate;
       const chord =
         Math.sign(Math.sin(2 * Math.PI * 440 * t)) * 0.5 +
         Math.sign(Math.sin(2 * Math.PI * 466 * t)) * 0.5;
       const decay = 1 - (i / blastLength) * 0.3;
-      joined[i] = Math.max(-0.95, Math.min(0.95, chord * decay));
+      out[i] = Math.max(-0.95, Math.min(0.95, chord * decay));
     }
-    joined.set(clip.samples, blastLength);
-    return joined;
+    return out;
   }
 }

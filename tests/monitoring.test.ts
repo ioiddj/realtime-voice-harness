@@ -48,6 +48,20 @@ describe('WAV codec', () => {
       decodeWav(encodeWav({ samples: new Float32Array(0), sampleRate: 16000 }).fill(0))
     ).toThrow();
   });
+
+  it('skips real-world extra chunks (LIST) before data', () => {
+    const clean = encodeWav({ samples: new Float32Array([0.5]), sampleRate: 16000 });
+    const list = new Uint8Array([
+      0x4c, 0x49, 0x53, 0x54, 4, 0, 0, 0, 0x49, 0x4e, 0x46, 0x4f,
+    ]);
+    const framed = new Uint8Array(clean.length + list.length);
+    framed.set(clean.slice(0, 36), 0);
+    framed.set(list, 36);
+    framed.set(clean.slice(36), 36 + list.length);
+    const decoded = decodeWav(framed);
+    expect(decoded.samples.length).toBe(1);
+    expect(decoded.samples[0]).toBeCloseTo(0.5, 2);
+  });
 });
 
 describe('harness monitor surface', () => {
