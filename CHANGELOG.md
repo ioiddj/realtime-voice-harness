@@ -5,6 +5,9 @@ changes pile at the top until the next version bump.
 
 ## Unreleased
 
+- Real, audible MLG voice (`MlgVoice`): pitch-dropped, bass-boosted,
+  soft-clipped speech with an airhorn policy; wraps any synthesizer.
+
 - Fix: resample to 16 kHz inside `TransformersSttAdapter` (Whisper hears
   slow-motion garbage otherwise); new `resampleClip` util with tests.
 - `AguiSseTransport` accepts `extraBody` (e.g. `forwardedProps`).

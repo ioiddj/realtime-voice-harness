@@ -151,6 +151,21 @@ const synthesizer = new FakeSynthesizer('mlg');
 List them with `VOICE_NAMES`, narrow with `isFakeVoiceName`, and render
 directly with `renderVoiceSamples` — all exported from the package root.
 
+## Real MLG voice (actually audible)
+
+Fake voices are test signatures, not sound. `MlgVoice` is the meme for
+real: it wraps any synthesizer (default: local Supertonic TTS), pitches the
+line down, boosts the bass, soft-clips, and fires an airhorn blast
+(`airhorn: 'off' | 'first' | 'every'`, default `'first'`):
+
+```ts
+const mlg = new MlgVoice(); // the infamous voiceover voice, for real
+const clip = await mlg.synthesize('Oh baby, a triple!');
+```
+
+Drop it anywhere a synthesizer goes — harness drivers, transports, app
+voice slots. The Innerview voice loop answers in it by default.
+
 ## Custom transcripts
 
 `FakeTranscriber` resolves clips by tag: `say:<voice>:<text>` (or legacy

@@ -93,6 +93,11 @@ export {
   type FakeVoiceName,
 } from './fakes/VoicePresets.js';
 export {
+  MlgVoice,
+  type MlgAirhorn,
+  type MlgVoiceOptions,
+} from './speech/MlgVoice.js';
+export {
   MastraLikeAgent,
   mastraInvoke,
   VoltAgentLikeAgent,
