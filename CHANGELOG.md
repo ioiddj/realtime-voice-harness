@@ -5,6 +5,8 @@ changes pile at the top until the next version bump.
 
 ## Unreleased
 
+- Fix: resample to 16 kHz inside `TransformersSttAdapter` (Whisper hears
+  slow-motion garbage otherwise); new `resampleClip` util with tests.
 - `AguiSseTransport` accepts `extraBody` (e.g. `forwardedProps`).
 - Mastra/VoltAgent adapters (`mastraInvoke`, `voltAgentInvoke`) with mock-model
   example suites; live NIM suites under `examples/live-nim/` (skip without keys).
