@@ -164,7 +164,7 @@ const clip = await mlg.synthesize('Oh baby, a triple!');
 ```
 
 Drop it anywhere a synthesizer goes — harness drivers, transports, app
-voice slots. The Innerview voice loop answers in it by default. Bring your
+voice slots. An Innerview voice loop can answer in it by default. Bring your
 own vintage blast: pass it as `airhornSample` (any `AudioClip` — resampled
 and peak-normalized automatically) and the tribute square wave retires.
 
@@ -195,8 +195,19 @@ NIM_LIVE_RUN=1 NVIDIA_NIM_API_KEY=<key> bun run test:live-nim
 AGUI_BASE_URL=http://localhost:3099 bun run test:live-nim
 ```
 
-`agui-nim` additionally forwards `generationSettings` through the new
-`extraBody` transport option. For the AG-UI leg, start the server first
+The AG-UI check is silent: it prints the scripted line, the heard reply,
+latency, and a `PASS`/`FAIL` marker without playing audio. WAVs and transcripts
+are saved under `test-results/voice/agui-nim/` for optional later inspection.
+Run just that check with:
+
+```sh
+AGUI_BASE_URL=http://localhost:3099 bunx vitest run \
+  --config vitest.examples.config.ts \
+  examples/live-nim/agui-nim.test.ts --reporter=verbose
+```
+
+`agui-nim` sends `conversationId` and `generationSettings` as top-level
+fields through `extraBody`. For the AG-UI leg, start the server first
 (`PORT=3099 bun run --bun server/src/index.ts` from the Innerview repo).
 
 ## Next steps

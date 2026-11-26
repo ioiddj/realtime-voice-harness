@@ -5,6 +5,11 @@ changes pile at the top until the next version bump.
 
 ## Unreleased
 
+- Innerview AG-UI live check now targets `/api/agui`, sends
+  `conversationId`/`generationSettings` as top-level fields, uses the MLG
+  voice wrapper, and prints a silent transcript/latency PASS report while
+  saving WAV artifacts.
+
 - Real, audible MLG voice (`MlgVoice`): pitch-dropped, bass-boosted,
   soft-clipped speech with an airhorn policy — or bring your own vintage
   blast via `airhornSample`.

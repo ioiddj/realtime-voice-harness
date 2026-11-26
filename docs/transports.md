@@ -16,7 +16,7 @@ transcribes. Everything app-specific lives in the transport.
 ### `AguiSseTransport` — AG-UI SSE endpoints
 
 Talks to any agent endpoint that accepts `{ messages, threadId }` JSON and
-streams AG-UI server-sent events (e.g. Innerview's `/api/chat`). Because the
+streams AG-UI server-sent events (e.g. Innerview's `/api/agui`). Because the
 endpoint speaks text, the transport bridges both directions with the injected
 drivers: outbound audio is transcribed to text, inbound `TEXT_MESSAGE_CONTENT`
 deltas are accumulated and synthesized back to an `AudioClip`.
@@ -27,7 +27,7 @@ const transport = new AguiSseTransport({
   transcriber, // ISpeechTranscriber
   synthesizer, // ISpeechSynthesizer
   threadId: 'live-test-1',
-  chatPath: '/api/chat', // default
+  chatPath: '/api/agui', // Innerview AG-UI endpoint
 });
 ```
 
@@ -36,6 +36,8 @@ deltas, skips lifecycle frames (`RUN_STARTED`, `RUN_FINISHED`,
 `STATE_SNAPSHOT`, `[DONE]`), and throws on `RUN_ERROR`. Verified against a
 mock SSE server (`tests/agui-transport.test.ts`) and live against Innerview
 with `MOCK_LLM=1` (47 ms round trip; mock path, not a real provider).
+For Innerview, also pass `conversationId` and `generationSettings` as
+top-level fields through `extraBody`.
 
 ### `LangChainTransport` — in-process agents
 

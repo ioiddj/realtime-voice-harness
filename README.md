@@ -79,7 +79,7 @@ bun run test:examples   # build + all framework/agent suites
 
 | Suite | Runner | Command | Status |
 |---|---|---|---|
-| Unit + transports (tests/) | vitest | `bun run test` | 39/39 pass |
+| Unit + transports (tests/) | vitest | `bun run test` | 51/51 pass |
 | bun example | bun:test | `bun run test:bun` | 2/2 pass |
 | node example | node:test | `bun run test:node` | 2/2 pass |
 | jest example | jest (@swc/jest) | `bun run test:jest` | 2/2 pass |
@@ -101,7 +101,7 @@ Details and per-framework notes: [docs/frameworks.md](docs/frameworks.md).
 | Transport | Target | Verified |
 |---|---|---|
 | `ScriptedAppTransport` (fakes) | In-memory scripted app | Unit tests |
-| `AguiSseTransport` | Any AG-UI SSE endpoint (e.g. Innerview `/api/chat`) | Mock-SSE tests + live check vs Innerview mock server |
+| `AguiSseTransport` | Any AG-UI SSE endpoint (e.g. Innerview `/api/agui`) | Mock-SSE tests + live check vs Innerview mock server |
 | `LangChainTransport` | Any `(text) => Promise<string>` fn (`RunnableLambda`, executor) | Tests with echo/uppercase runnables |
 | `mastraInvoke` / `voltAgentInvoke` | Real Mastra/VoltAgent agents via `LangChainTransport` | Tests with real agents + mock models; live NIM suites |
 | `TanStackTransport` | Any `@tanstack/ai` `RealtimeAdapter` (provider adapters, cascade adapters, `FakeTanStackAdapter`) | Tests over the fake; live provider needs keys |
